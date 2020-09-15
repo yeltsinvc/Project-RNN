@@ -20,14 +20,12 @@ from shapely.geometry import Point,Polygon
 from geopandas import GeoDataFrame
 import shapely.wkt
 import pandas as pd
-import sys
-# the mock-0.3.1 dir contains testcase.py, testutils.py & mock.py
-sys.path.append(r'C:\Users\valero\Documents\Yeltsin 2.0\traffictongsim')
-from Scripts import processing_yvc as yvc
 
-ind_dir=r"C:/Users/valero/Documents/Yeltsin 2.0/ind-dataset/drone-dataset-tools-master/data"
+from Scripts import preprocessing as pre
 
-data_ind=pd.read_csv(ind_dir+"/00_tracks.csv")
+ind_dir=r"C:\Users\valero\Documents\Yeltsin 2.0\Project-RNN\Data\dataInd"
+
+data_ind=pd.read_csv(ind_dir+r"\00_tracks.csv")
 
 col_names=['Vehicle_ID','Frame_ID','Total_Frames','Global_Time','Local_X','Local_Y','Global_X','Global_Y','v_Length','v_Width','v_Class','v_Vel','v_Acc','Lane_ID','Preceeding','Following','Space_Hdwy','Time_Hdwy']
 
@@ -36,17 +34,17 @@ col_names=['Vehicle_ID','Frame_ID','Total_Frames','Global_Time','Local_X','Local
 
 
 #Geometry
-geomet=pd.DataFrame()
-yvc.getGeometry(geomet,ind_dir+'/00_background.png')
+#background=r'00_background.png'
+#pre.getGeometry(ind_dir,background)#comment if the geometry already exist
 
 
-geomet=pd.read_csv('geometry.csv')
+geomet=pd.read_csv(ind_dir+r'\geometry.csv')
 poligons=[]
 k=0
 
 geomet=geomet.T
 geomet = geomet[geomet[0] != 0]
-geo=[yvc.Geometry(indx) for indx in geomet.index]
+geo=[pre.Geometry(indx) for indx in geomet.index]
 
 for objgeo in geo:
     objgeo.polygon=shapely.wkt.loads(geomet[0][objgeo.name])
