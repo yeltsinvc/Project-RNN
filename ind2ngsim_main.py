@@ -25,7 +25,7 @@ from Scripts import preprocessing as pre
 
 ind_dir=r"C:\Users\valero\Documents\Yeltsin 2.0\Project-RNN\Data\dataInd"
 
-data_ind=pd.read_csv(ind_dir+r"\00_tracks.csv")
+#data_ind=pd.read_csv(ind_dir+r"\00_tracks.csv")
 
 col_names=['Vehicle_ID','Frame_ID','Total_Frames','Global_Time','Local_X','Local_Y','Global_X','Global_Y','v_Length','v_Width','v_Class','v_Vel','v_Acc','Lane_ID','Preceeding','Following','Space_Hdwy','Time_Hdwy']
 
@@ -36,12 +36,12 @@ col_names=['Vehicle_ID','Frame_ID','Total_Frames','Global_Time','Local_X','Local
 ##read files of database
 
 
-
-
+data_ind, static_info, meta_info=pre.read_all_recordings_from_csv(ind_dir)
+ortho_px_to_meter = meta_info["orthoPxToMeter"][0]
 
 ##Geometry
-#background=r'00_background.png'
-#pre.getGeometry(ind_dir,background)#comment if the geometry already exist
+background=r'00_background.png'
+pre.getGeometry(ind_dir,background,ortho_px_to_meter)#comment if the geometry already exist
 
 
 geomet=pd.read_csv(ind_dir+r'\geometry.csv')
