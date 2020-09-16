@@ -71,3 +71,29 @@ def getGeometry(indDirectory,img_world):
             break
     cv2.destroyAllWindows()
 
+
+### copy some funtions of run_track_visualization
+    
+def read_all_recordings_from_csv(base_path="../data/"):
+    """
+    This methods reads the tracks and meta information for all recordings given the path of the inD dataset.
+    :param base_path: Directory containing all csv files of the inD dataset
+    :return: a tuple of tracks, static track info and recording meta info
+    """
+    tracks_files = base_path + "*_tracks.csv")
+    static_tracks_files = base_path + "*_tracksMeta.csv")
+    recording_meta_files = base_path + "*_recordingMeta.csv")
+
+    all_tracks = []
+    all_static_info = []
+    all_meta_info = []
+    for track_file, static_tracks_file, recording_meta_file in zip(tracks_files,
+                                                                   static_tracks_files,
+                                                                   recording_meta_files):
+        logger.info("Loading csv files {}, {} and {}", track_file, static_tracks_file, recording_meta_file)
+        tracks, static_info, meta_info = read_from_csv(track_file, static_tracks_file, recording_meta_file)
+        all_tracks.extend(tracks)
+        all_static_info.extend(static_info)
+        all_meta_info.extend(meta_info)
+
+    return all_tracks, all_static_info, all_meta_info
