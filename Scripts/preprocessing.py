@@ -7,6 +7,7 @@ Created on Tue Sep 15 16:59:45 2020
 
 
 import numpy as np
+import pandas as pd
 
 #objet that represent the lane
 class Geometry:
@@ -16,10 +17,10 @@ class Geometry:
 
 
 #funtion to create csv with the geometry(border of lanes) -----> yvc
-def getGeometry(indDirectory,img_world):
+def getGeometry(indDirectory,img_world,ortho_px_to_meter):
     from geopandas import GeoSeries
     from shapely.geometry import Polygon
-    import pandas as pd
+    
     
     dataframe=pd.DataFrame()
     
@@ -46,7 +47,7 @@ def getGeometry(indDirectory,img_world):
             cv2.polylines(img, np.array([user_param]), True, FINAL_LINE_COLOR, 1)
             n_lane=input("Enter ID of lane: ")
             
-            dataframe['Lane '+n_lane]=[Polygon(np.array(user_param)*0.0126999352667008*12)]#####modifi
+            dataframe['Lane '+n_lane]=[Polygon(np.array(user_param)*ortho_px_to_meter*12)]#####modifi
             dataframe.to_csv(indDirectory + "\geometry.csv")
             user_param=[]
             print(user_param)
@@ -74,26 +75,61 @@ def getGeometry(indDirectory,img_world):
 
 ### copy some funtions of run_track_visualization
     
-def read_all_recordings_from_csv(base_path="../data/"):
+def read_all_recordings_from_csv(base_path):
     """
     This methods reads the tracks and meta information for all recordings given the path of the inD dataset.
     :param base_path: Directory containing all csv files of the inD dataset
     :return: a tuple of tracks, static track info and recording meta info
     """
-    tracks_files = base_path + "*_tracks.csv")
-    static_tracks_files = base_path + "*_tracksMeta.csv")
-    recording_meta_files = base_path + "*_recordingMeta.csv")
+    track_file = base_path + r"\00_tracks.csv"
+    static_tracks_file = base_path + r"\00_tracksMeta.csv"
+    recording_meta_file = base_path + r"\00_recordingMeta.csv"
+    
+    tracks, static_info, meta_info=read_from_csv(track_file, static_tracks_file, recording_meta_file)
+    
 
-    all_tracks = []
-    all_static_info = []
-    all_meta_info = []
-    for track_file, static_tracks_file, recording_meta_file in zip(tracks_files,
-                                                                   static_tracks_files,
-                                                                   recording_meta_files):
-        logger.info("Loading csv files {}, {} and {}", track_file, static_tracks_file, recording_meta_file)
-        tracks, static_info, meta_info = read_from_csv(track_file, static_tracks_file, recording_meta_file)
-        all_tracks.extend(tracks)
-        all_static_info.extend(static_info)
-        all_meta_info.extend(meta_info)
+    return tracks, static_info, meta_info
 
-    return all_tracks, all_static_info, all_meta_info
+
+def read_from_csv(track_file, static_tracks_file, recordings_meta_file):
+    """
+    This method reads tracks including meta data for a single recording from csv files.
+
+    :param track_file: The input path for the tracks csv file.
+    :param static_tracks_file: The input path for the static tracks csv file.
+    :param recordings_meta_file: The input path for the recording meta csv file.
+    :return: tracks, static track info and recording info
+    """
+    static_info = read_static_info(static_tracks_file)
+    meta_info = read_meta_info(recordings_meta_file)
+    tracks = read_tracks(track_file)
+    return tracks, static_info, meta_info
+
+
+def read_tracks(track_file):
+    """
+    This method reads the static info file from highD data.
+
+    :param static_tracks_file: the input path for the static csv file.
+    :return: the static dictionary - the key is the track_id and the value is the corresponding data for this track
+    """
+    return pd.read_csv(track_file)#.to_dict(orient="records")
+
+def read_static_info(static_tracks_file):
+    """
+    This method reads the static info file from highD data.
+
+    :param static_tracks_file: the input path for the static csv file.
+    :return: the static dictionary - the key is the track_id and the value is the corresponding data for this track
+    """
+    return pd.read_csv(static_tracks_file)#.to_dict(orient="records")
+
+
+def read_meta_info(recordings_meta_file):
+    """
+    This method reads the recording info file from ind data.
+
+    :param recordings_meta_file: the path for the recording meta csv file.
+    :return: the meta dictionary
+    """
+    return pd.read_csv(recordings_meta_file)#.to_dict(orient="records")[0]
