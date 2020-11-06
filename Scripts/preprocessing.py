@@ -8,7 +8,7 @@ Created on Tue Sep 15 16:59:45 2020
 
 import numpy as np
 import pandas as pd
-
+import math
 #objet that represent the lane
 class Geometry:
     def __init__(self,name):
@@ -71,6 +71,39 @@ def getGeometry(indDirectory,img_world,ortho_px_to_meter):
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
     cv2.destroyAllWindows()
+
+
+
+
+
+
+
+
+
+def calculate_pente(data_ngsim):
+    data_vehicle_by_lane=data_ngsim.groupby(['Lane_ID','Vehicle_ID'])
+    vector_x=[]
+    vector_y=[]
+    for group_by_lane in data_vehicle_by_lane.groups:
+        data_vehicle_lane=data_vehicle_by_lane.get_group(group_by_lane)
+        idx_frame_min=data_vehicle_lane['Frame_ID'].idxmin()
+        idx_frame_max=data_vehicle_lane['Frame_ID'].idxmax()
+        vector_x.append(data_vehicle_lane['xCenter'][idx_frame_max]-data_vehicle_lane['xCenter'][idx_frame_min])
+        vector_y.append(data_vehicle_lane['yCenter'][idx_frame_max]-data_vehicle_lane['yCenter'][idx_frame_min])
+    return [np.mean(vector_x),np.mean(vector_y)]
+        
+
+def rotate_trayectories(vector_trayectories,data_ngsim):
+    '''
+    x'=xcos(angle)+ysin(angle)
+    y'=-xsin(angle)+ycos(angle)
+    '''
+    angle=np.arctan2(vector_trayectories[1],vector_trayectories[0])
+    data_ngsim['Local_X']=data_ngsim['xCenter']*math.cos(angle)+data_ngsim['yCenter']*math.sin(angle)
+    data_ngsim['Local_Y']=data_ngsim['xCenter']*-math.sin(angle)+data_ngsim['yCenter']*math.cos(angle)
+    return data_ngsim
+
+
 
 
 ### copy some funtions of run_track_visualization
